@@ -1,0 +1,494 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("INTERIUM Beta", "DarkTheme")
+
+local w_awp = workspace.CurrentCamera.v_Awp
+local Gun = w_awp.Gun
+
+local Legit = Window:NewTab("Legit/Rage")
+local LegitSection = Legit:NewSection("                                              Legit/Rage")
+
+
+local RP = game:GetService("ReplicatedStorage")
+local player = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local WallhackColor = Color3.new(1,0,0)
+local WallhackEnabled = false
+local Expanded = false
+local Humanoid = player.Character:FindFirstChild("Humanoid")
+local Camera = workspace.CurrentCamera
+local UserInputService = game:GetService("UserInputService")
+
+local Mouse = player:GetMouse()
+
+local Hide = false
+local Third = false
+local Aim = false
+local Insane = false
+
+local HitboxSize = 1
+
+LegitSection:NewToggle("Aimbot (E)", "Press E", function(state)
+	if state then
+		GetClosest()
+		UserInputService.InputBegan:Connect(function(input)
+			if input.KeyCode == Enum.KeyCode.E then
+				Aim = true
+				while wait() do
+					Camera.CFrame = CFrame.new(Camera.CFrame.Position, GetClosest().Character.Head.Position)
+					if Aim == false then return end
+				end
+			end
+		end)
+	else
+		Aim = false
+	end
+end)
+
+function GetClosest()
+	local ClosestDistance = math.huge
+	local ClosestPlayer = nil
+
+	for _, v in ipairs(game.Players:GetChildren()) do
+		if v ~= game.Players.LocalPlayer then
+			local distance = (player.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).magnitude
+			if distance <= ClosestDistance then
+				ClosestDistance = distance
+				ClosestPlayer = v
+			end
+		end
+	end
+	return ClosestPlayer
+end
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.E then
+		Aim = false
+	end
+end)
+
+LegitSection:NewLabel("Rage")
+
+LegitSection:NewToggle("TP all", "lol im 2016", function(state)
+	if state then
+		for _, p in ipairs(workspace:GetChildren()) do
+			print("f")
+			if p:IsA("Model") then
+				if p.Name == player.Name then
+				else
+					local LeftArm = p["Left Arm"]
+					print("haha")
+					LeftArm.Massless = false
+					Insane = true
+					local playerPos = player.Character.HumanoidRootPart.Position
+					
+					LeftArm.Position = Vector3.new(0,0,0)
+				end
+			end
+		end
+	else
+		for _, p in ipairs(workspace:GetChildren()) do
+			if p:IsA("Model") then
+				if p.Name == player.Name then
+
+				else
+					local LeftArm = p["Left Arm"]
+					LeftArm.Massless = true
+					LeftArm.Size = Vector3.new(HitboxSize,HitboxSize,HitboxSize)
+					Insane = false
+				end
+			end
+		end
+	end
+end)
+
+local Visual = Window:NewTab("Visual")
+local VisualSection = Visual:NewSection("                                                 Visual")
+
+VisualSection:NewToggle("Wallhack", "Toggling wallhack lol", function(state)
+	if state then
+		WallhackEnabled = true
+		print("Toggle On")
+		for _, Players in ipairs(workspace:GetChildren()) do
+			if Players:IsA("Model") then
+				if Players.Name == player.Name then
+				else
+					if Players:FindFirstChild("Wallhack") then
+						Players.Wallhack:Destroy()
+
+						local highlight = Instance.new("Highlight", Players)
+						highlight.Name = "Wallhack"
+						highlight.FillColor = WallhackColor
+					else
+						local highlight = Instance.new("Highlight", Players)
+						highlight.Name = "Wallhack"
+						highlight.FillColor = WallhackColor
+					end
+				end
+			end
+		end
+
+	else
+		print("Toggle Off")
+		for _, Players in ipairs(workspace:GetChildren()) do
+			if Players:IsA("Model") and Players:FindFirstChild("Wallhack") then
+				local Wallhack = Players.Wallhack
+				Wallhack:Destroy()
+				WallhackEnabled = false
+			end
+		end
+	end
+end)
+
+VisualSection:NewSlider("Wallhack Color", "Changing wallhack color", 5, 1, function(s)
+	if s == 1 then
+		WallhackColor = Color3.new(1,0,0)
+	elseif s == 2 then
+		WallhackColor = Color3.new(0,1,0)
+	elseif s == 3 then
+		WallhackColor = Color3.new(0,0,1)
+	elseif s == 4 then
+		WallhackColor = Color3.new(0.6, 0, 1)
+	elseif s == 5 then
+		WallhackColor = Color3.new(0, 0, 0)
+	end
+end)
+
+VisualSection:NewToggle("Third Person", "Tiggling third person", function(state)
+	if state then
+		Third = true
+		ThirdPerson()
+	else
+		Third = false
+		ThirdPerson()
+	end
+end)
+
+VisualSection:NewButton("Unlock Shiftlock", "for third person", function()
+	local host = game:GetService'Players'.LocalPlayer
+
+	coroutine.resume(coroutine.create(function()
+		while task.wait() do
+			host.DevEnableMouseLock = true
+		end
+	end))
+end)
+
+function ThirdPerson()
+	if Third == true then
+		game:GetService("Players").LocalPlayer.CameraMinZoomDistance = 15
+		game:GetService("Players").LocalPlayer.CameraMaxZoomDistance = 15
+		game:GetService("Players").LocalPlayer.CameraMode = Enum.CameraMode.Classic
+	elseif Third == false then
+		game:GetService("Players").LocalPlayer.CameraMinZoomDistance = 0
+		game:GetService("Players").LocalPlayer.CameraMaxZoomDistance = 0
+		game:GetService("Players").LocalPlayer.CameraMode = Enum.CameraMode.Custom
+	end
+end
+
+VisualSection:NewToggle("Player Glow", "Соси", function(state)
+	if state then
+		for _, p in ipairs(workspace:GetChildren()) do
+			if p.Name == player.Name then
+				local Glow = Instance.new("Highlight", w_awp)
+				Glow.Name = "Glow"
+				Glow.FillTransparency = 1
+			end
+		end
+	else
+		for _, p in ipairs(workspace:GetChildren()) do
+			if p.Name == player.Name then
+				if p:FindFirstChild("Glow") then
+					p.Glow:Destroy()
+				end
+			end
+		end
+	end
+end)
+
+local FireEn = false
+local RainbowF = false
+
+VisualSection:NewToggle("Fire Head", "Иди нахуй", function(state)
+	if state then
+		for _, p in ipairs(workspace:GetChildren()) do
+			if p.Name == player.Name then
+				local Head = player.Character.Head
+				local Fire = Instance.new("Fire", Head)
+				Fire.Size = 5
+				Fire.Heat = 12
+				RainbowFire()
+				RainbowF = true
+				FireEn = true
+			end
+			
+		end
+	else
+		if player.Character.Head:FindFirstChild("Fire") then
+			player.Character.Head.Fire:Destroy()
+			RainbowF = false
+			FireEn = false
+		end
+	end
+end)
+
+VisualSection:NewToggle("Rainbow Fire", "Toggle rainbow fire", function(state)
+	if state then
+		if player.Character.Head:FindFirstChild("Fire") then
+			RainbowF = true
+			RainbowFire()
+		end
+	else
+		if player.Character.Head:FindFirstChild("Fire") then
+			player.Character.Head.Fire.Color = Color3.new(1, 0.5, 0)
+			RainbowF = false
+		end
+	end
+end)
+
+VisualSection:NewToggle("MLG Aura", "VERY EPICCCC", function(state)
+	if state then
+		for _, p in ipairs(workspace:GetChildren()) do
+			if p.Name == player.Name then
+				local Torso = player.Character.Torso
+				local Particle = Instance.new("ParticleEmitter", Torso)
+				Particle.SpreadAngle = Vector2.new(180,-180)
+				Particle.Texture = "rbxassetid://1396747511"
+				Particle.Rate = 12
+				Particle.Lifetime = 1.5
+				Particle.Speed = 20
+				Particle.Size = 1
+				Particle.Name = "MLG"
+			end
+		end
+	else
+		for _, p in ipairs(workspace:GetChildren()) do
+			if p.Name == player.Name then
+				local Torso = player.Character.Torso
+				if Torso:FindFirstChild("MLG") then
+					Torso.MLG:Destroy()
+				end
+			end
+		end
+	end
+end)
+
+function RainbowFire()
+	local t = 5;
+
+	while wait() do
+		if RainbowF == true then
+			local hue = tick() % t / t
+			local color = Color3.fromHSV(hue, 1, 1)
+			if player.Character.Head:FindFirstChild("Fire") then --------------------------------------------------------------------------
+				player.Character.Head.Fire.Color = color
+			end
+		end
+	end
+end
+
+function wh()
+	for _, Players in ipairs(workspace:GetChildren()) do
+		if Players:IsA("Model") then
+			if Players.Name == player.Name then
+			else
+				if Players:FindFirstChild("Wallhack") then
+					Players.Wallhack:Destroy()
+
+					local highlight = Instance.new("Highlight", Players)
+					highlight.Name = "Wallhack"
+					highlight.FillColor = WallhackColor
+				else
+					local highlight = Instance.new("Highlight", Players)
+					highlight.Name = "Wallhack"
+					highlight.FillColor = WallhackColor
+				end
+			end
+		end
+	end
+end
+
+function Hidewh()
+	for _, Players in ipairs(workspace:GetChildren()) do
+		if Players:IsA("Model") then
+			if Players.Name == player.Name then
+			else
+				if Players:FindFirstChild("Wallhack") then
+					Players.Wallhack:Destroy()
+				end
+			end
+		end
+	end
+end
+
+local Misc = Window:NewTab("Misc")
+local MiscSection = Misc:NewSection("                                                   Misc")
+
+MiscSection:NewSlider("Expand hitbox", "Hitbox expander", 40, 1, function(es)
+	for _, Players in ipairs(workspace:GetChildren()) do
+		if Players:IsA("Model") then
+			if Players.Name == player.Name then
+			else
+				if Players:FindFirstChild("Left Arm") then
+					local LeftArm = Players["Left Arm"]
+					Expanded = true
+					HitboxSize = es
+					LeftArm.Massless = true
+
+					LeftArm.Size = Vector3.new(es,es,es)
+				end
+			end
+		end
+	end
+end)
+
+MiscSection:NewToggle("Hide all", "For epic videos", function(state)
+	if state then
+		print("Toggle On")
+		for _, Players in ipairs(workspace:GetChildren()) do
+			Hide = true
+			if Players:IsA("Model") then
+				if Players.Name == player.Name then
+				else
+					if Players:FindFirstChild("Left Arm") then
+						local LeftArm = Players["Left Arm"]
+						LeftArm.Transparency = 1
+
+						if Players:FindFirstChild("Wallhack") then
+							Players.Wallhack.OutlineTransparency = 1
+							Players.Wallhack.FillTransparency = 1
+						end
+					end
+				end
+			end
+		end
+	else
+		print("Toggle Off")
+		Hide = false
+	end
+end)
+
+
+local Kills = player:WaitForChild("leaderstats").Kills
+local tfk = 0
+
+MiscSection:NewSlider("Fake Kills", "Change your kills (Press tab)", 99999, 1, function(fk)
+	Kills.Value = fk
+	tfk = fk
+end)
+
+Kills.Changed:Connect(function()
+	Kills.Value = tfk
+end)
+
+player.CharacterAdded:Connect(function() --------------------------------------------------------------------------------------------------------------
+	Kills.Value = tfk
+	
+	if FireEn == true then
+		for _, p in ipairs(workspace:GetChildren()) do
+			if p.Name == player.Name then
+				if player.Character.Head:FindFirstChild("Fire") then
+				local Head = player.Character.Head
+				local Fire = Instance.new("Fire", Head)
+				Fire.Size = 5
+				Fire.Heat = 12
+				RainbowF = true
+					FireEn = true
+					if RainbowF == true then
+						RainbowFire()
+					end
+				end
+			end			
+		end
+	end
+end)
+
+local Movement = Window:NewTab("Movement")
+local MovementSection = Movement:NewSection("Movement")
+
+MovementSection:NewSlider("WalkSpeed", "Change your walkspeed", 50, 0, function(s)
+	Humanoid.WalkSpeed = s
+end)
+
+
+
+while wait(0.2) do
+	if Third then
+		ThirdPerson()
+	end
+	if WallhackEnabled == true then
+		if Hide == false then
+			wh()
+		elseif Hide	== true then
+			Hidewh()
+		end
+	end
+	if Insane == true then
+		for _, p in ipairs(workspace:GetChildren()) do
+			if p:IsA("Model") then
+				if p.Name == player.Name then
+				else
+					local LeftArm = p["Left Arm"]
+					print("haha")
+					LeftArm.Massless = false
+					Insane = true
+					LeftArm.Position = Vector3.new(0,2,0)
+				end
+			end
+		end
+	elseif Insane == false then
+		for _, p in ipairs(workspace:GetChildren()) do
+			if p:IsA("Model") then
+				if p.Name == player.Name then
+
+				else
+					local LeftArm = p["Left Arm"]
+					LeftArm.Massless = true
+					LeftArm.Size = Vector3.new(HitboxSize,HitboxSize,HitboxSize)
+					Insane = false
+				end
+			end
+		end
+	end
+	if Expanded == true then
+		if Hide == false then
+			for _, Players in ipairs(workspace:GetChildren()) do
+				if Players:IsA("Model") then
+					if Players.Name == player.Name then
+					else
+						if Players:FindFirstChild("Left Arm") then
+							repeat wait() until Players:FindFirstChild("Left Arm")
+							local LeftArm = Players["Left Arm"]
+							LeftArm.Transparency = 0
+							if LeftArm.Size ~= Vector3.new(HitboxSize,HitboxSize,HitboxSize) then
+								LeftArm.Size = Vector3.new(HitboxSize,HitboxSize,HitboxSize)
+								LeftArm.Massless = true
+
+								LeftArm.Transparency = 0
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	if Hide == true then
+		for _, Players in ipairs(workspace:GetChildren()) do
+			if Players:IsA("Model") then
+				if Players.Name == player.Name then
+				else
+					if Players:FindFirstChild("Left Arm") then
+						repeat wait() until Players:FindFirstChild("Left Arm")
+						local LeftArm = Players["Left Arm"]
+						LeftArm.Transparency = 1
+						if LeftArm.Size ~= Vector3.new(HitboxSize,HitboxSize,HitboxSize) then
+							LeftArm.Size = Vector3.new(HitboxSize,HitboxSize,HitboxSize)
+							LeftArm.Massless = true
+
+							LeftArm.Transparency = 1
+						end
+					end
+				end
+			end
+		end
+	end
+end
